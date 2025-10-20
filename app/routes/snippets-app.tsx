@@ -2,7 +2,7 @@ import React from "react";
 import { Toaster } from "~/components/ui/sonner";
 
 const HOST = "http://localhost:8000";
-const GET_ALL_SNIPPETS_ENDPOINT = "/api/snippets/";
+const SNIPPETS_ENDPOINT = "/api/snippets/";
 
 interface SnippetType {
   text: string;
@@ -32,7 +32,7 @@ function SnippetsList() {
   const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
 
   React.useEffect(() => {
-    fetch(`${HOST}${GET_ALL_SNIPPETS_ENDPOINT}`)
+    fetch(`${HOST}${SNIPPETS_ENDPOINT}`)
       .then((res) => {
         res.json().then((rj) => setSnippets(rj));
       })
