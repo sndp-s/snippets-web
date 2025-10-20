@@ -43,6 +43,7 @@ function SnippetsList() {
     <ul className="flex flex-col gap-2">
       {snippets && (
         snippets.map(snippet => (
+          // TODO add key prop
           <li className="bg-accent rounded py-2 px-4">
             {/* <p className="text-base mb-1">{snippet.title || <span>snippet-title-placeholder</span>}</p> */}
             <p className="text-sm">{snippet.text}</p>
