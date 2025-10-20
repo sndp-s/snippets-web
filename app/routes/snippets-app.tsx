@@ -15,9 +15,12 @@ interface SnippetType {
 export default function SnippetsApp() {
 
   return (
-    <div className="h-full max-w-5xl m-auto">
+    <div className="h-full max-w-5xl m-auto flex flex-col gap-2">
       <h1>Snippets</h1>
-      <SnippetsList />
+      <div className="flex-1">
+        <SnippetsList />
+      </div>
+      <SnippetInput />
       {/* TODO: check if Toaster can be moved to the root file */}
       <Toaster position="top-right" richColors closeButton />
     </div>
@@ -52,5 +55,21 @@ function SnippetsList() {
         )))
       }
     </ul>
+  );
+}
+
+function SnippetInput() {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(e.target.firstChild.value);
+    // TODO send the text to the backend to be saved
+    // TODO clear the text input
+    // TODO re render the snippets list
+  };
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2 flex-col items-end">
+      <textarea className="w-full border p-1 text-sm" rows={5} id="input" />
+      <button type="submit" className="border px-2 py-1 rounded">save</button>
+    </form>
   );
 }
