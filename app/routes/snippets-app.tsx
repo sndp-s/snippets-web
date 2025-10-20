@@ -44,7 +44,7 @@ function SnippetsList() {
       {snippets && (
         snippets.map(snippet => (
           <li className="bg-accent rounded py-2 px-4">
-            <p className="text-base mb-1">{snippet.title || <span>snippet-title-placeholder</span>}</p>
+            {/* <p className="text-base mb-1">{snippet.title || <span>snippet-title-placeholder</span>}</p> */}
             <p className="text-sm">{snippet.text}</p>
             <p className="text-xs text-right">last updated: {snippet.updated_dt}</p>
           </li>
