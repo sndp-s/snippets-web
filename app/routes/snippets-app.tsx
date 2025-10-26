@@ -1,6 +1,9 @@
 import React from "react";
 import { Toaster } from "~/components/ui/sonner";
 import { toast } from "sonner";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { Textarea } from "~/components/ui/textarea";
+import { Button } from "~/components/ui/button";
 
 const HOST = "http://localhost:8000";
 const SNIPPETS_ENDPOINT = "/api/snippets/";
@@ -32,38 +35,86 @@ export default function SnippetsApp() {
   }, []);
 
   return (
-    <div className="h-full max-w-5xl m-auto flex flex-col gap-2">
-      <h1>Snippets</h1>
-      <div className="flex-1">
-        <SnippetsList snippets={snippets} />
-      </div>
-      <SnippetInput onSnippetSaved={fetchSnippets} />
-      {/* TODO: check if Toaster can be moved to the root file */}
+    <div className="h-screen max-w-[1600px] mx-auto flex flex-col">
+      {/* Header */}
+      <header className="p-4 border-b border-border bg-muted/30">
+        <h1 className="text-xl font-semibold tracking-tight">Snippets</h1>
+      </header>
+
+      {/* Main two-column area */}
+      <main className="flex flex-1 overflow-hidden">
+        {/* Left: main snippets section */}
+        <section className="flex flex-col w-[50%] min-w-[400px] border-r border-border bg-background">
+          {/* scrollable list */}
+          <div className="flex-1 overflow-y-auto p-3">
+            <SnippetsList snippets={snippets} />
+          </div>
+
+          {/* sticky input at bottom */}
+          <div className="sticky bottom-0 bg-background border-t border-border p-3">
+            <SnippetInput onSnippetSaved={fetchSnippets} />
+          </div>
+        </section>
+
+        {/* Right: secondary section (collapsed visual until needed) */}
+        <section className="flex-1 bg-muted/10 p-4 text-sm text-muted-foreground">
+          <p>section2 (placeholder)</p>
+        </section>
+      </main>
+
+      {/* Toaster */}
       <Toaster position="top-right" richColors closeButton />
     </div>
   );
+
 }
 
-// List existing snippets
+
 function SnippetsList({ snippets }: { snippets: SnippetType[] | null }) {
+  if (!snippets) {
+    return (
+      <p className="text-xs text-muted-foreground italic px-1">
+        Loading snippets...
+      </p>
+    );
+  }
+
+  if (snippets.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground italic px-1">
+        No snippets yet. Add one below!
+      </p>
+    );
+  }
+
   return (
-    <ul className="flex flex-col gap-2">
-      {snippets &&
-        snippets.map((snippet, idx) => (
+    <ScrollArea className="h-full">
+      <ul className="flex flex-col gap-[2px] pr-1">
+        {snippets.map((snippet, idx) => (
           <li
-            key={`${snippet.updated_dt}-${idx}`} // TODO: Replace with a proper ID if available
-            className="bg-accent rounded py-2 px-4"
+            key={`${snippet.updated_dt}-${idx}`}
+            className="rounded-md border border-border/40 bg-muted/20 hover:bg-muted/30 transition-colors"
           >
-            {/* <p className="text-base mb-1">{snippet.title || <span>snippet-title-placeholder</span>}</p> */}
-            <p className="text-sm">{snippet.text}</p>
-            <p className="text-xs text-right">
-              last updated: {snippet.updated_dt}
-            </p>
+            <div className="p-2">
+              {snippet.title && (
+                <p className="text-[13px] font-medium leading-tight mb-[2px]">
+                  {snippet.title}
+                </p>
+              )}
+              <p className="text-[13px] leading-snug whitespace-pre-wrap text-foreground">
+                {snippet.text}
+              </p>
+              <p className="text-[11px] text-muted-foreground text-right mt-[3px]">
+                {new Date(snippet.updated_dt).toLocaleString()}
+              </p>
+            </div>
           </li>
         ))}
-    </ul>
+      </ul>
+    </ScrollArea>
   );
 }
+
 
 // Save snippet to backend
 async function saveSnippet(snippetText: string) {
@@ -93,8 +144,10 @@ async function saveSnippet(snippetText: string) {
   }
 }
 
+
 function SnippetInput({ onSnippetSaved }: { onSnippetSaved: () => void }) {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -105,24 +158,27 @@ function SnippetInput({ onSnippetSaved }: { onSnippetSaved: () => void }) {
       return;
     }
 
+    setIsSubmitting(true);
     await saveSnippet(snippetText);
-    if (textareaRef.current) {
-      textareaRef.current.value = "";
-    }
+    setIsSubmitting(false);
 
+    if (textareaRef.current) textareaRef.current.value = "";
     onSnippetSaved();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 flex-col items-end">
-      <textarea
-        className="w-full border p-1 text-sm"
-        rows={5}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      <Textarea
         ref={textareaRef}
+        placeholder="Type your snippet here..."
+        className="text-sm"
+        rows={4}
       />
-      <button type="submit" className="border px-2 py-1 rounded">
-        save
-      </button>
+      <div className="flex justify-end">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : "Save"}
+        </Button>
+      </div>
     </form>
   );
 }
