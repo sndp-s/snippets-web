@@ -7,6 +7,8 @@ import { Button } from "~/components/ui/button";
 
 const HOST = "http://localhost:8000";
 const SNIPPETS_ENDPOINT = "/api/snippets/";
+const CHILDREN_SNIPPETS_ENDPOINT = (snippetId: string) =>
+  `/api/snippets/${snippetId}/children/`;
 
 interface SnippetType {
   text: string;
@@ -19,7 +21,9 @@ interface SnippetType {
 
 export default function SnippetsApp() {
   const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
+  const [childrenSnippets, setChildrenSnippets] = React.useState<SnippetType[] | null>(null);
   const [selectedSnippetId, setSelectedSnippetId] = React.useState<SnippetType["id"] | null>(null);
+
 
   const fetchSnippets = () => {
     fetch(`${HOST}${SNIPPETS_ENDPOINT}`)
@@ -32,9 +36,25 @@ export default function SnippetsApp() {
       });
   };
 
+  const fetchChildrenSnippets = (parentSnippetId: string) => {
+    fetch(`${HOST}${CHILDREN_SNIPPETS_ENDPOINT(parentSnippetId)}`)
+      .then((res) => res.json())
+      .then((data) => setChildrenSnippets(data))
+      .catch((err) => {
+        console.error("Something went wrong trying to fetch children snippets!");
+        console.error(err);
+        toast.error("Failed to fetch children snippets");
+      });
+  };
+
   React.useEffect(() => {
     fetchSnippets();
   }, []);
+
+  React.useEffect(() => {
+    if (!selectedSnippetId) return;
+    fetchChildrenSnippets(selectedSnippetId);
+  }, [selectedSnippetId]);
 
   return (
     <div className="h-screen max-w-[1600px] mx-auto flex flex-col">
@@ -49,7 +69,11 @@ export default function SnippetsApp() {
         <section className="flex flex-col w-[50%] min-w-[400px] border-r border-border bg-background">
           {/* scrollable list */}
           <div className="flex-1 overflow-y-auto p-3">
-            <SnippetsList snippets={snippets} onSnippetSelect={(id) => { setSelectedSnippetId(id) }} />
+            <SnippetsList
+              snippets={snippets}
+              onSnippetSelect={(id: string) => setSelectedSnippetId(id)}
+              selectedSnippetId={selectedSnippetId}
+            />
           </div>
 
           {/* sticky input at bottom */}
@@ -60,7 +84,18 @@ export default function SnippetsApp() {
 
         {/* Right: children snippets section */}
         <section className="flex-1 bg-muted/10 p-4 text-sm text-muted-foreground">
-          <p>selected snippet id {selectedSnippetId}</p>
+          {/* scrollable list */}
+          <div className="flex-1 overflow-y-auto p-3 gap-2 flex flex-col">
+            {/* TODO: type this callback */}
+            <SnippetsList snippets={childrenSnippets} onSnippetSelect={() => { }} />
+            <SnippetInput
+              parentId={selectedSnippetId}
+              onSnippetSaved={() => {
+                if (!selectedSnippetId) return;
+                fetchChildrenSnippets(selectedSnippetId);
+              }}
+            />
+          </div>
         </section>
       </main>
 
@@ -72,7 +107,15 @@ export default function SnippetsApp() {
 }
 
 
-function SnippetsList({ snippets, onSnippetSelect }: { snippets: SnippetType[] | null, onSnippetSelect: Function }) {
+function SnippetsList({
+  snippets,
+  onSnippetSelect,
+  selectedSnippetId,
+}: {
+  snippets: SnippetType[] | null;
+  onSnippetSelect: (id: string) => void;
+  selectedSnippetId?: string | null;
+}) {
   if (!snippets) {
     return (
       <p className="text-xs text-muted-foreground italic px-1">
@@ -92,48 +135,73 @@ function SnippetsList({ snippets, onSnippetSelect }: { snippets: SnippetType[] |
   return (
     <ScrollArea className="h-full">
       <ul className="flex flex-col gap-[2px] pr-1">
-        {snippets.map((snippet, idx) => (
-          <li
-            key={`${snippet.updated_dt}-${idx}`}
-            className="rounded-md border border-border/40 bg-muted/20 hover:bg-muted/30 transition-colors"
-            onClick={() => { onSnippetSelect(snippet.id) }}
-          >
-            <div className="p-2">
-              {snippet.title && (
-                <p className="text-[13px] font-medium leading-tight mb-[2px]">
-                  {snippet.title}
+        {snippets.map((snippet, idx) => {
+          const updatedAt = new Date(snippet.updated_dt)
+            .toLocaleString([], {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+            .replace(",", "");
+
+          const isSelected = snippet.id === selectedSnippetId;
+
+          return (
+            <li
+              key={`${snippet.updated_dt}-${idx}`}
+              onClick={() => onSnippetSelect(snippet.id)}
+              className={[
+                "rounded-md border border-border/40 transition-colors cursor-pointer",
+                isSelected
+                  ? "bg-accent/40 border-accent"
+                  : "bg-muted/20 hover:bg-muted/30",
+              ].join(" ")}
+            >
+              <div className="p-2">
+                {(snippet.title || updatedAt) && (
+                  <div className="flex justify-between items-baseline mb-[2px]">
+                    {snippet.title ? (
+                      <p className="text-[13px] font-medium leading-tight truncate">
+                        {snippet.title}
+                      </p>
+                    ) : (
+                      <span className="text-[13px] text-muted-foreground">
+                        (untitled)
+                      </span>
+                    )}
+                    <p className="text-[11px] text-muted-foreground ml-2 shrink-0">
+                      {updatedAt}
+                    </p>
+                  </div>
+                )}
+                <p className="text-[13px] leading-snug whitespace-pre-wrap text-foreground">
+                  {snippet.text}
                 </p>
-              )}
-              <p className="text-[13px] leading-snug whitespace-pre-wrap text-foreground">
-                {snippet.text}
-              </p>
-              <p className="text-[11px] text-muted-foreground text-right mt-[3px]">
-                {new Date(snippet.updated_dt).toLocaleString()}
-              </p>
-            </div>
-          </li>
-        ))}
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </ScrollArea>
   );
 }
 
 
+
 // Save snippet to backend
-async function saveSnippet(snippetText: string) {
+async function saveSnippet(snippetText: string, parentId?: string | null) {
   try {
     const response = await fetch(`${HOST}${SNIPPETS_ENDPOINT}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // TODO: add CSRF token if needed
       },
       body: JSON.stringify({
         text: snippetText,
-        // title: null,
-        // tag_names: [],
+        parent: parentId ?? null, // ✅ include parent if provided
       }),
-      // credentials: "include", // in case CSRF cookies are needed
     });
 
     if (!response.ok) {
@@ -148,7 +216,14 @@ async function saveSnippet(snippetText: string) {
 }
 
 
-function SnippetInput({ onSnippetSaved }: { onSnippetSaved: () => void }) {
+
+function SnippetInput({
+  onSnippetSaved,
+  parentId = null,
+}: {
+  onSnippetSaved: () => void;
+  parentId?: string | null;
+}) {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -162,7 +237,7 @@ function SnippetInput({ onSnippetSaved }: { onSnippetSaved: () => void }) {
     }
 
     setIsSubmitting(true);
-    await saveSnippet(snippetText);
+    await saveSnippet(snippetText, parentId); // ✅ send parentId
     setIsSubmitting(false);
 
     if (textareaRef.current) textareaRef.current.value = "";
@@ -173,7 +248,11 @@ function SnippetInput({ onSnippetSaved }: { onSnippetSaved: () => void }) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <Textarea
         ref={textareaRef}
-        placeholder="Type your snippet here..."
+        placeholder={
+          parentId
+            ? "Add a child snippet..."
+            : "Type your snippet here..."
+        }
         className="text-sm"
         rows={4}
       />
