@@ -84,24 +84,32 @@ export default function SnippetsApp() {
 
         {/* Right: children snippets section */}
         <section className="flex-1 bg-muted/10 p-4 text-sm text-muted-foreground">
-          {/* scrollable list */}
-          <div className="flex-1 overflow-y-auto p-3 gap-2 flex flex-col">
-            {/* TODO: type this callback */}
-            <SnippetsList snippets={childrenSnippets} onSnippetSelect={() => { }} />
-            <SnippetInput
-              parentId={selectedSnippetId}
-              onSnippetSaved={() => {
-                if (!selectedSnippetId) return;
-                fetchChildrenSnippets(selectedSnippetId);
-              }}
-            />
-          </div>
+          {selectedSnippetId ? (
+            <div
+              key={selectedSnippetId}
+              className="flex-1 overflow-y-auto p-3 gap-2 flex flex-col"
+            >
+              <SnippetsList snippets={childrenSnippets} onSnippetSelect={() => { }} />
+              <SnippetInput
+                parentId={selectedSnippetId}
+                onSnippetSaved={() => {
+                  if (!selectedSnippetId) return;
+                  fetchChildrenSnippets(selectedSnippetId);
+                }}
+              />
+            </div>
+          ) : (
+            <div className="text-center text-sm text-muted-foreground/70 p-6 italic">
+              Click on a snippet to view its children.
+            </div>
+          )}
         </section>
+
       </main>
 
       {/* Toaster */}
       <Toaster position="top-right" richColors closeButton />
-    </div>
+    </div >
   );
 
 }
