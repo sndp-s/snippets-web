@@ -168,7 +168,7 @@ function SnippetsList({
                       </p>
                     ) : (
                       <span className="text-[13px] text-muted-foreground">
-                        (untitled)
+                        untitled
                       </span>
                     )}
                     <p className="text-[11px] text-muted-foreground ml-2 shrink-0">
