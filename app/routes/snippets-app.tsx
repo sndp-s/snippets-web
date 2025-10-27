@@ -14,10 +14,12 @@ interface SnippetType {
   tag: string[];
   created_dt: string;
   updated_dt: string;
+  id: string;
 }
 
 export default function SnippetsApp() {
   const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
+  const [selectedSnippetId, setSelectedSnippetId] = React.useState<SnippetType["id"] | null>(null);
 
   const fetchSnippets = () => {
     fetch(`${HOST}${SNIPPETS_ENDPOINT}`)
@@ -47,7 +49,7 @@ export default function SnippetsApp() {
         <section className="flex flex-col w-[50%] min-w-[400px] border-r border-border bg-background">
           {/* scrollable list */}
           <div className="flex-1 overflow-y-auto p-3">
-            <SnippetsList snippets={snippets} />
+            <SnippetsList snippets={snippets} onSnippetSelect={(id) => { setSelectedSnippetId(id) }} />
           </div>
 
           {/* sticky input at bottom */}
@@ -56,9 +58,9 @@ export default function SnippetsApp() {
           </div>
         </section>
 
-        {/* Right: secondary section (collapsed visual until needed) */}
+        {/* Right: children snippets section */}
         <section className="flex-1 bg-muted/10 p-4 text-sm text-muted-foreground">
-          <p>section2 (placeholder)</p>
+          <p>selected snippet id {selectedSnippetId}</p>
         </section>
       </main>
 
@@ -70,7 +72,7 @@ export default function SnippetsApp() {
 }
 
 
-function SnippetsList({ snippets }: { snippets: SnippetType[] | null }) {
+function SnippetsList({ snippets, onSnippetSelect }: { snippets: SnippetType[] | null, onSnippetSelect: Function }) {
   if (!snippets) {
     return (
       <p className="text-xs text-muted-foreground italic px-1">
@@ -94,6 +96,7 @@ function SnippetsList({ snippets }: { snippets: SnippetType[] | null }) {
           <li
             key={`${snippet.updated_dt}-${idx}`}
             className="rounded-md border border-border/40 bg-muted/20 hover:bg-muted/30 transition-colors"
+            onClick={() => { onSnippetSelect(snippet.id) }}
           >
             <div className="p-2">
               {snippet.title && (
