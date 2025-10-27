@@ -153,7 +153,7 @@ function SnippetsList({
               key={`${snippet.updated_dt}-${idx}`}
               onClick={() => onSnippetSelect(snippet.id)}
               className={[
-                "rounded-md border border-border/40 transition-colors cursor-pointer",
+                "rounded border border-border/40 transition-colors cursor-pointer",
                 isSelected
                   ? "bg-accent/40 border-accent"
                   : "bg-muted/20 hover:bg-muted/30",
