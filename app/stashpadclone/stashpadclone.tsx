@@ -4,20 +4,14 @@ import { toast } from "sonner";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
+import type { SnippetType } from "~/lib/types";
 
 const HOST = "http://localhost:8000";
 const SNIPPETS_ENDPOINT = "/api/snippets/";
 const CHILDREN_SNIPPETS_ENDPOINT = (snippetId: string) =>
   `/api/snippets/${snippetId}/children/`;
 
-interface SnippetType {
-  text: string;
-  title: string | null;
-  tag: string[];
-  created_dt: string;
-  updated_dt: string;
-  id: string;
-}
+
 
 export default function StashpadClone() {
   const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
