@@ -117,8 +117,7 @@ export function SnippetInput({
         value={snippet}
         onChange={(e) => setSnippet(e.target.value)}
         placeholder="Type your snippet..."
-        rows={6}
-        className="text-sm"
+        className="text-sm min-h-72"
       />
 
       {/* TAGS INLINE */}
