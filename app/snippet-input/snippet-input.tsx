@@ -77,18 +77,49 @@ export function SnippetInput({
   const removeTag = (tag: string) =>
     setTags(tags.filter((t) => t !== tag));
 
+  const commitTag = (raw: string) => {
+    const clean = raw.trim();
+    if (!clean || tags.includes(clean)) return;
+    setTags([...tags, clean]);
+  };
+
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && tagInput.trim()) {
+    const val = tagInput;
+
+    // ENTER = add tag
+    if (e.key === "Enter" && val.trim()) {
       e.preventDefault();
-      addTag(tagInput.trim());
+      commitTag(val);
+      setTagInput("");
+      return;
     }
-    if (e.key === "Backspace" && !tagInput && tags.length) {
-      removeTag(tags[tags.length - 1]);
+
+    // SPACE or COMMA = auto-tag
+    if ((e.key === " " || e.key === ",") && val.trim()) {
+      e.preventDefault();
+      commitTag(val);
+      setTagInput("");
+      return;
     }
+
+    // BACKSPACE deletes last tag if empty
+    if (e.key === "Backspace" && !val && tags.length) {
+      setTags(tags.slice(0, -1));
+    }
+
+    // ESC clears input
     if (e.key === "Escape") {
       setTagInput("");
       setSuggestions([]);
     }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const text = e.clipboardData.getData("text");
+    const parts = text.split(/[\s,]+/); // split by space OR comma
+    parts.forEach(commitTag);
+    e.preventDefault();
+    setTagInput("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -139,6 +170,7 @@ export function SnippetInput({
           value={tagInput}
           onChange={(e) => setTagInput(e.target.value)}
           onKeyDown={handleTagKeyDown}
+          onPaste={handlePaste}
           placeholder="add tag"
           className="flex-1 bg-transparent outline-none text-sm py-1"
         />
