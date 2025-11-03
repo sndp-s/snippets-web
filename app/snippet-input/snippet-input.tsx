@@ -66,6 +66,20 @@ export function SnippetInput({
     };
   }, [tagInput]);
 
+  const handleSnippetKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Cmd+Enter (Mac) or Ctrl+Enter (Win/Linux)
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      const text = snippet.trim();
+      if (!text) {
+        toast.warning("Enter snippet text");
+        return;
+      }
+      handleSubmit(e as any);
+    }
+  };
+
+
   const addTag = (tag: string) => {
     tag = tag.trim();
     if (!tag || tags.includes(tag)) return;
@@ -147,6 +161,7 @@ export function SnippetInput({
         ref={textareaRef}
         value={snippet}
         onChange={(e) => setSnippet(e.target.value)}
+        onKeyDown={handleSnippetKeyDown}
         placeholder="Type your snippet..."
         className="text-sm min-h-72"
       />
