@@ -281,6 +281,10 @@ export function SnippetInput({
               </Button>
             </div>
 
+            <span className="self-center text-xs text-muted-foreground mr-2 hidden sm:inline">
+              ⌘⏎ / Ctrl⏎ to save
+            </span>
+
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Saving..." : "Save"}
             </Button>
