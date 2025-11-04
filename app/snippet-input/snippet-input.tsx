@@ -37,6 +37,9 @@ export function SnippetInput({
   const [tagInput, setTagInput] = React.useState("");
   const [suggestions, setSuggestions] = React.useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [confirmNoTags, setConfirmNoTags] = React.useState(false);
+  const confirmButtonRef = React.useRef<HTMLButtonElement>(null);
+  const textareaSelectionRef = React.useRef<{ start: number; end: number } | null>(null);
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const tagInputRef = React.useRef<HTMLInputElement>(null);
@@ -65,6 +68,25 @@ export function SnippetInput({
       clearTimeout(t);
     };
   }, [tagInput]);
+
+  React.useEffect(() => {
+    if (confirmNoTags) {
+      confirmButtonRef.current?.focus();
+    }
+  }, [confirmNoTags]);
+
+
+  const cancelNoTagConfirm = () => {
+    setConfirmNoTags(false);
+
+    // Restore cursor position
+    if (textareaRef.current && textareaSelectionRef.current) {
+      const { start, end } = textareaSelectionRef.current;
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(start, end);
+    }
+  };
+
 
   const handleSnippetKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Cmd+Enter (Mac) or Ctrl+Enter (Win/Linux)
@@ -138,8 +160,22 @@ export function SnippetInput({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!snippet.trim()) {
       toast.warning("Enter snippet text");
+      return;
+    }
+
+    if (tags.length === 0 && !confirmNoTags) {
+      // Save cursor selection before showing confirm UI
+      if (textareaRef.current) {
+        textareaSelectionRef.current = {
+          start: textareaRef.current.selectionStart,
+          end: textareaRef.current.selectionEnd,
+        };
+      }
+
+      setConfirmNoTags(true);
       return;
     }
 
@@ -150,6 +186,7 @@ export function SnippetInput({
     setSnippet("");
     setTagInput("");
     setTags([]);
+    setConfirmNoTags(false);
     onSnippetSaved();
     textareaRef.current?.focus();
   };
@@ -192,6 +229,7 @@ export function SnippetInput({
       </div>
 
       {/* Tag suggestions */}
+      {/* TODO: make this a drop down... */}
       {suggestions.length > 0 && (
         <div className="border rounded-md shadow p-2 text-sm flex flex-wrap gap-1">
           {suggestions.map((s) => (
@@ -210,30 +248,44 @@ export function SnippetInput({
       )}
 
       {/* ACTION BUTTONS */}
+      {/* ACTION BUTTONS */}
       <div className="flex justify-between">
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              setSnippet("");
-              textareaRef.current?.focus();
-            }}
-          >
-            Clear text
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setTags([])}
-          >
-            Clear tags
-          </Button>
-        </div>
+        {confirmNoTags ? (
+          <div className="flex gap-2 ml-auto">
+            <Button
+              ref={confirmButtonRef}
+              variant="destructive"
+              onClick={handleSubmit}
+            >
+              Yes, save without tags
+            </Button>
+            <Button variant="outline" onClick={cancelNoTagConfirm}>
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setSnippet("");
+                  textareaRef.current?.focus();
+                }}
+              >
+                Clear text
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setTags([])}>
+                Clear tags
+              </Button>
+            </div>
 
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save"}
-        </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save"}
+            </Button>
+          </>
+        )}
       </div>
     </form>
   );
