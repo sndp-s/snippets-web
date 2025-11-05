@@ -229,7 +229,6 @@ export function SnippetInput({
       </div>
 
       {/* Tag suggestions */}
-      {/* TODO: make this a drop down... */}
       {suggestions.length > 0 && (
         <div className="border rounded-md shadow p-2 text-sm flex flex-wrap gap-1">
           {suggestions.map((s) => (
@@ -248,7 +247,6 @@ export function SnippetInput({
       )}
 
       {/* ACTION BUTTONS */}
-      {/* ACTION BUTTONS */}
       <div className="flex justify-between">
         {confirmNoTags ? (
           <div className="flex gap-2 ml-auto">
@@ -265,6 +263,16 @@ export function SnippetInput({
           </div>
         ) : (
           <>
+            <div className="flex flex-col gap-2">
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save"}
+              </Button>
+
+              <span className="self-center text-xs text-muted-foreground mr-2 hidden sm:inline">
+                ⌘⏎ / Ctrl⏎ to save
+              </span>
+            </div>
+
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -280,14 +288,6 @@ export function SnippetInput({
                 Clear tags
               </Button>
             </div>
-
-            <span className="self-center text-xs text-muted-foreground mr-2 hidden sm:inline">
-              ⌘⏎ / Ctrl⏎ to save
-            </span>
-
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save"}
-            </Button>
           </>
         )}
       </div>
