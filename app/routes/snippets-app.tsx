@@ -30,13 +30,13 @@ export default function SnippetsApp() {
         toast.error("Failed to fetch snippets");
       });
   };
-
-  React.useEffect(() => {
-    fetchSnippets();
-  }, []);
-
+  
   // CMD+SHIFT+S to open snippet input (adjust as you want)
   React.useEffect(() => {
+    // fetch existing snippets
+    fetchSnippets();
+
+    // add global event handler for shortcuts
     const handler = (e: KeyboardEvent) => {
       // ⌘⇧S (Mac) or Ctrl+Shift+S (Windows/Linux)
       const mod = e.metaKey || e.ctrlKey;
@@ -46,6 +46,7 @@ export default function SnippetsApp() {
       }
     };
     window.addEventListener("keydown", handler);
+
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
