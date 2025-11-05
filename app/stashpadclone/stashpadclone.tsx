@@ -56,9 +56,9 @@ export default function StashpadClone() {
         </div>
 
         {/* sticky input at bottom */}
-        <div className="sticky bottom-0 bg-background border-t border-border p-3">
+        {/* <div className="sticky bottom-0 bg-background border-t border-border p-3">
           <SnippetInput onSnippetSaved={fetchSnippets} />
-        </div>
+        </div> */}
       </section>
 
       {/* Right: children snippets section */}
