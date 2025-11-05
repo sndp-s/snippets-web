@@ -5,22 +5,22 @@ import type { SnippetType } from "~/lib/types";
 import { SnippetInput } from "~/snippet-input/snippet-input";
 import { HOST, SNIPPETS_ENDPOINT, CHILDREN_SNIPPETS_ENDPOINT } from "~/lib/consts";
 
-export default function StashpadClone() {
-  const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
+export default function StashpadClone({ snippets }: { snippets: SnippetType[] | null }) {
+  // const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
   const [childrenSnippets, setChildrenSnippets] = React.useState<SnippetType[] | null>(null);
   const [selectedSnippetId, setSelectedSnippetId] = React.useState<SnippetType["id"] | null>(null);
 
 
-  const fetchSnippets = () => {
-    fetch(`${HOST}${SNIPPETS_ENDPOINT}`)
-      .then((res) => res.json())
-      .then((data) => setSnippets(data))
-      .catch((err) => {
-        console.error("Something went wrong trying to fetch all snippets!");
-        console.error(err);
-        toast.error("Failed to fetch snippets");
-      });
-  };
+  // const fetchSnippets = () => {
+  //   fetch(`${HOST}${SNIPPETS_ENDPOINT}`)
+  //     .then((res) => res.json())
+  //     .then((data) => setSnippets(data))
+  //     .catch((err) => {
+  //       console.error("Something went wrong trying to fetch all snippets!");
+  //       console.error(err);
+  //       toast.error("Failed to fetch snippets");
+  //     });
+  // };
 
   const fetchChildrenSnippets = (parentSnippetId: string) => {
     fetch(`${HOST}${CHILDREN_SNIPPETS_ENDPOINT(parentSnippetId)}`)
@@ -33,9 +33,9 @@ export default function StashpadClone() {
       });
   };
 
-  React.useEffect(() => {
-    fetchSnippets();
-  }, []);
+  // React.useEffect(() => {
+  //   fetchSnippets();
+  // }, []);
 
   React.useEffect(() => {
     if (!selectedSnippetId) return;

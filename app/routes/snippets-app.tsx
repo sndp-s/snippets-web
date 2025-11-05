@@ -11,9 +11,29 @@ import {
 import { SnippetInput } from "~/snippet-input/snippet-input";
 import StashpadClone from "~/stashpadclone/stashpadclone";
 import { PlusIcon } from "lucide-react";
+import type { SnippetType } from "~/lib/types";
+import { HOST, SNIPPETS_ENDPOINT } from "~/lib/consts";
+import { toast } from "sonner";
+
 
 export default function SnippetsApp() {
+  const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
   const [open, setOpen] = React.useState(false);
+
+  const fetchSnippets = () => {
+    fetch(`${HOST}${SNIPPETS_ENDPOINT}`)
+      .then((res) => res.json())
+      .then((data) => setSnippets(data))
+      .catch((err) => {
+        console.error("Something went wrong trying to fetch all snippets!");
+        console.error(err);
+        toast.error("Failed to fetch snippets");
+      });
+  };
+
+  React.useEffect(() => {
+    fetchSnippets();
+  }, []);
 
   // CMD+SHIFT+S to open snippet input (adjust as you want)
   React.useEffect(() => {
@@ -50,6 +70,7 @@ export default function SnippetsApp() {
 
               <SnippetInput
                 onSnippetSaved={() => {
+                  fetchSnippets();
                   setOpen(false);
                 }}
               />
@@ -61,7 +82,7 @@ export default function SnippetsApp() {
         </div>
       </header>
 
-      <StashpadClone />
+      <StashpadClone snippets={snippets} />
 
       {/* Toaster */}
       <Toaster position="top-right" richColors closeButton />
