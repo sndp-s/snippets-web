@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog"
 import { SnippetInput } from "~/snippet-input/snippet-input";
-// import StashpadClone from "~/stashpadclone/stashpadclone";
+import StashpadClone from "~/stashpadclone/stashpadclone";
 import { PlusIcon } from "lucide-react";
 
 export default function SnippetsApp() {
@@ -61,7 +61,7 @@ export default function SnippetsApp() {
         </div>
       </header>
 
-      {/* <StashpadClone /> */}
+      <StashpadClone />
 
       {/* Toaster */}
       <Toaster position="top-right" richColors closeButton />
