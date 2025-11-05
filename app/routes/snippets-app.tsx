@@ -77,7 +77,7 @@ export default function SnippetsApp() {
             </DialogContent>
           </Dialog>
           <span className="self-center text-xs text-muted-foreground mr-2 hidden sm:inline">
-            ⌘+shift+⏎ / Ctrl+shift+⏎ to save
+            ⌘+shift+s / Ctrl+shift+s to open
           </span>
         </div>
       </header>
