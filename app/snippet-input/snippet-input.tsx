@@ -108,6 +108,7 @@ export function SnippetInput({
     setTags([...tags, tag]);
     setTagInput("");
     setSuggestions([]);
+    tagInputRef.current?.focus();
   };
 
   const removeTag = (tag: string) =>
