@@ -80,7 +80,7 @@ export function SnippetsList({
         ref={listRef}
         tabIndex={0}
         onKeyDown={handleKeyDown}
-        className="flex flex-col gap-[2px] pr-1 outline-none focus-visible:ring-1 focus-visible:ring-ring/30 rounded-md"
+        className="flex flex-col gap-2 pr-1 outline-none focus-visible:ring-1 focus-visible:ring-ring/30 rounded-md"
       >
         {snippets.map((snippet) => {
           const updatedAt = new Date(snippet.updated_dt)
