@@ -122,7 +122,7 @@ export function SnippetsList({
               {snippet.tags.length > 0 && (
                 <div className="flex gap-1 flex-wrap px-2 pb-2">
                   {snippet.tags.map((t) => (
-                    <Badge key={t.name} variant="outline">
+                    <Badge key={t.name}>
                       {t.name}
                     </Badge>
                   ))}
