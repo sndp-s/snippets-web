@@ -2,8 +2,8 @@ import React from "react";
 import { toast } from "sonner";
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge"; // ✅ using shadcn badge
-import { GET_TAGS_ENDPOINT, HOST, SNIPPETS_ENDPOINT } from "~/lib/consts";
+import { HOST, SNIPPETS_ENDPOINT } from "~/lib/consts";
+import { TagPicker } from "~/tag-picker";
 
 async function saveSnippet(snippetText: string, tags: string[], parentId?: string | null) {
   try {
@@ -34,47 +34,17 @@ export function SnippetInput({
 }) {
   const [snippet, setSnippet] = React.useState("");
   const [tags, setTags] = React.useState<string[]>([]);
-  const [tagInput, setTagInput] = React.useState("");
-  const [suggestions, setSuggestions] = React.useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [confirmNoTags, setConfirmNoTags] = React.useState(false);
   const confirmButtonRef = React.useRef<HTMLButtonElement>(null);
   const textareaSelectionRef = React.useRef<{ start: number; end: number } | null>(null);
-
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const tagInputRef = React.useRef<HTMLInputElement>(null);
-
-  // ✅ fetch tag suggestions as user types (search 200ms debounce)
-  React.useEffect(() => {
-    if (!tagInput.trim()) {
-      setSuggestions([]);
-      return;
-    }
-
-    const c = new AbortController();
-    const t = setTimeout(async () => {
-      try {
-        const res = await fetch(`${HOST}${GET_TAGS_ENDPOINT(tagInput)}`, { signal: c.signal });
-        // debugger
-        const data = await res.json();
-        setSuggestions(data.map((t: any) => t.name));
-      } catch (e) {
-        console.log(e)
-      }
-    }, 200);
-
-    return () => {
-      c.abort();
-      clearTimeout(t);
-    };
-  }, [tagInput]);
 
   React.useEffect(() => {
     if (confirmNoTags) {
       confirmButtonRef.current?.focus();
     }
   }, [confirmNoTags]);
-
 
   const cancelNoTagConfirm = () => {
     setConfirmNoTags(false);
@@ -87,7 +57,6 @@ export function SnippetInput({
     }
   };
 
-
   const handleSnippetKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Cmd+Enter (Mac) or Ctrl+Enter (Win/Linux)
     if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
@@ -99,64 +68,6 @@ export function SnippetInput({
       }
       handleSubmit(e as any);
     }
-  };
-
-
-  const addTag = (tag: string) => {
-    tag = tag.trim();
-    if (!tag || tags.includes(tag)) return;
-    setTags([...tags, tag]);
-    setTagInput("");
-    setSuggestions([]);
-    tagInputRef.current?.focus();
-  };
-
-  const removeTag = (tag: string) =>
-    setTags(tags.filter((t) => t !== tag));
-
-  const commitTag = (raw: string) => {
-    const clean = raw.trim();
-    if (!clean || tags.includes(clean)) return;
-    setTags([...tags, clean]);
-  };
-
-  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const val = tagInput;
-
-    // ENTER = add tag
-    if (e.key === "Enter" && val.trim()) {
-      e.preventDefault();
-      commitTag(val);
-      setTagInput("");
-      return;
-    }
-
-    // SPACE or COMMA = auto-tag
-    if ((e.key === " " || e.key === ",") && val.trim()) {
-      e.preventDefault();
-      commitTag(val);
-      setTagInput("");
-      return;
-    }
-
-    // BACKSPACE deletes last tag if empty
-    if (e.key === "Backspace" && !val && tags.length) {
-      setTags(tags.slice(0, -1));
-    }
-
-    // ESC clears input
-    if (e.key === "Escape") {
-      setTagInput("");
-      setSuggestions([]);
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const text = e.clipboardData.getData("text");
-    const parts = text.split(/[\s,]+/); // split by space OR comma
-    parts.forEach(commitTag);
-    e.preventDefault();
-    setTagInput("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -185,7 +96,6 @@ export function SnippetInput({
     setIsSubmitting(false);
 
     setSnippet("");
-    setTagInput("");
     setTags([]);
     setConfirmNoTags(false);
     onSnippetSaved();
@@ -204,48 +114,7 @@ export function SnippetInput({
         className="text-sm min-h-72"
       />
 
-      {/* TAGS INLINE */}
-      <div className="flex flex-wrap items-center gap-1 border rounded-md px-2 py-1">
-        {tags.map((tag) => (
-          <Badge
-            key={tag}
-            variant="secondary"
-            className="flex items-center gap-1 cursor-pointer"
-            onClick={() => removeTag(tag)}
-          >
-            {tag}
-            <span className="text-xs">×</span>
-          </Badge>
-        ))}
-
-        <input
-          ref={tagInputRef}
-          value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)}
-          onKeyDown={handleTagKeyDown}
-          onPaste={handlePaste}
-          placeholder="add tag"
-          className="flex-1 bg-transparent outline-none text-sm py-1"
-        />
-      </div>
-
-      {/* Tag suggestions */}
-      {suggestions.length > 0 && (
-        <div className="border rounded-md shadow p-2 text-sm flex flex-wrap gap-1">
-          {suggestions.map((s) => (
-            <button
-              key={s}
-              onClick={(e) => {
-                e.preventDefault();
-                addTag(s);
-              }}
-              className="px-2 py-1 border rounded hover:bg-gray-100"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
+      <TagPicker value={tags} onChange={setTags} allowNewTags={true} />
 
       {/* ACTION BUTTONS */}
       <div className="flex justify-between">
