@@ -14,7 +14,7 @@ import { PlusIcon } from "lucide-react";
 import type { SnippetType } from "~/lib/types";
 import { HOST, SNIPPETS_ENDPOINT } from "~/lib/consts";
 import { toast } from "sonner";
-
+import { SnippetSearchControls } from "~/snippet-search-controls";
 
 export default function SnippetsApp() {
   const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
@@ -53,9 +53,8 @@ export default function SnippetsApp() {
   return (
     <div className="h-screen max-w-[1600px] mx-auto flex flex-col">
       {/* Header */}
-      <header className="p-4 border-b border-border bg-muted/30 flex justify-between">
-        <h1 className="text-xl font-semibold tracking-tight">Snippets</h1>
-
+      <header className="p-2 border-b border-border bg-muted/30 flex gap-2 justify-between">
+        <SnippetSearchControls />
         <div className="flex flex-col gap-2">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -79,7 +78,7 @@ export default function SnippetsApp() {
             </DialogContent>
           </Dialog>
         </div>
-      </header>
+      </header >
 
       <StashpadClone snippets={snippets} />
 
