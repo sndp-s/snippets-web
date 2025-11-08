@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog"
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "~/components/ui/tooltip";
 import { SnippetInput } from "~/snippet-input/snippet-input";
 import StashpadClone from "~/stashpadclone/stashpadclone";
 import { PlusIcon } from "lucide-react";
@@ -15,6 +16,7 @@ import type { SnippetType } from "~/lib/types";
 import { HOST, SNIPPETS_ENDPOINT } from "~/lib/consts";
 import { toast } from "sonner";
 import { SnippetSearchControls } from "~/snippet-search-controls";
+import { Kbd, KbdGroup } from "~/components/ui/kbd";
 
 export default function SnippetsApp() {
   const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
@@ -51,39 +53,51 @@ export default function SnippetsApp() {
   }, []);
 
   return (
-    <div className="h-screen max-w-[1600px] mx-auto flex flex-col">
-      {/* Header */}
-      <header className="p-2 border-b border-border bg-muted/30 flex gap-2 justify-between">
-        <SnippetSearchControls />
-        <div className="flex flex-col gap-2">
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <PlusIcon /> Snippet
-                <span className="self-center text-xs text-muted-foreground mr-2 hidden sm:inline">
-                  ⌘/Ctrl+shift+s
-                </span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create a new snippet</DialogTitle>
-              </DialogHeader>
-              <SnippetInput
-                onSnippetSaved={() => {
-                  fetchSnippets();
-                  setOpen(false);
-                }}
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
-      </header >
+    <TooltipProvider>
+      <div className="h-screen max-w-[1600px] mx-auto flex flex-col">
+        {/* Header */}
+        <header className="p-2 border-b border-border bg-muted/30 flex gap-2 justify-between">
+          <SnippetSearchControls />
+          <div className="flex flex-col gap-2">
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="flex items-center gap-1">
+                        <PlusIcon /> Snippet
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <KbdGroup>
+                        <Kbd>⌘</Kbd>/<Kbd>Ctrl</Kbd>
+                        <Kbd>Shift</Kbd>
+                        <Kbd>S</Kbd>
+                      </KbdGroup>
+                    </TooltipContent>
+                  </Tooltip>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create a new snippet</DialogTitle>
+                </DialogHeader>
+                <SnippetInput
+                  onSnippetSaved={() => {
+                    fetchSnippets();
+                    setOpen(false);
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
+        </header >
 
-      <StashpadClone snippets={snippets} />
+        <StashpadClone snippets={snippets} />
 
+      </div >
       {/* Toaster */}
       <Toaster position="top-right" richColors closeButton />
-    </div >
+    </TooltipProvider>
   );
 }
