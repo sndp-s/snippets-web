@@ -30,7 +30,7 @@ export default function SnippetsApp() {
         toast.error("Failed to fetch snippets");
       });
   };
-  
+
   // CMD+SHIFT+S to open snippet input (adjust as you want)
   React.useEffect(() => {
     // fetch existing snippets
@@ -57,7 +57,6 @@ export default function SnippetsApp() {
         <h1 className="text-xl font-semibold tracking-tight">Snippets</h1>
 
         <div className="flex flex-col gap-2">
-
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
@@ -67,7 +66,7 @@ export default function SnippetsApp() {
                 </span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="w-2xl">
+            <DialogContent>
               <DialogHeader>
                 <DialogTitle>Create a new snippet</DialogTitle>
               </DialogHeader>
