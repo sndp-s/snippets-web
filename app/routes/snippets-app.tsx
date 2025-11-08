@@ -62,13 +62,15 @@ export default function SnippetsApp() {
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <PlusIcon /> Snippet
+                <span className="self-center text-xs text-muted-foreground mr-2 hidden sm:inline">
+                  ⌘/Ctrl+shift+s
+                </span>
               </Button>
             </DialogTrigger>
             <DialogContent className="w-2xl">
               <DialogHeader>
                 <DialogTitle>Create a new snippet</DialogTitle>
               </DialogHeader>
-
               <SnippetInput
                 onSnippetSaved={() => {
                   fetchSnippets();
@@ -77,9 +79,6 @@ export default function SnippetsApp() {
               />
             </DialogContent>
           </Dialog>
-          <span className="self-center text-xs text-muted-foreground mr-2 hidden sm:inline">
-            ⌘+shift+s / Ctrl+shift+s to open
-          </span>
         </div>
       </header>
 
