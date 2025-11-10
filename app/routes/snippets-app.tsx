@@ -17,13 +17,15 @@ import { HOST, SNIPPETS_ENDPOINT } from "~/lib/consts";
 import { toast } from "sonner";
 import { SnippetSearchControls } from "~/snippet-search-controls";
 import { Kbd, KbdGroup } from "~/components/ui/kbd";
+import { useSnippetStore } from "~/store/useSnippetStore";
 
 export default function SnippetsApp() {
   const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
   const [open, setOpen] = React.useState(false);
+  const { searchQuery, selectedTags, tagMode } = useSnippetStore();
 
-  const fetchSnippets = () => {
-    fetch(`${HOST}${SNIPPETS_ENDPOINT}`)
+  const fetchSnippets = (searchQuery: string, tags: string[], tagMode: "any" | "all") => {
+    fetch(`${HOST}${SNIPPETS_ENDPOINT}?q=${searchQuery}&tags=${tags.join(",")}&tag_mode=${tagMode}`)
       .then((res) => res.json())
       .then((data) => setSnippets(data))
       .catch((err) => {
@@ -36,7 +38,7 @@ export default function SnippetsApp() {
   // CMD+SHIFT+S to open snippet input (adjust as you want)
   React.useEffect(() => {
     // fetch existing snippets
-    fetchSnippets();
+    fetchSnippets(searchQuery, selectedTags, tagMode);
 
     // add global event handler for shortcuts
     const handler = (e: KeyboardEvent) => {
@@ -51,6 +53,10 @@ export default function SnippetsApp() {
 
     return () => window.removeEventListener("keydown", handler);
   }, []);
+
+  React.useEffect(() => {
+    fetchSnippets(searchQuery, selectedTags, tagMode);
+  }, [searchQuery, selectedTags, tagMode]);
 
   return (
     <TooltipProvider>
@@ -84,7 +90,7 @@ export default function SnippetsApp() {
                 </DialogHeader>
                 <SnippetInput
                   onSnippetSaved={() => {
-                    fetchSnippets();
+                    fetchSnippets(searchQuery, selectedTags, tagMode);
                     setOpen(false);
                   }}
                 />
