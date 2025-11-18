@@ -4,6 +4,8 @@ import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
 import { HOST, SNIPPETS_ENDPOINT } from "~/lib/consts";
 import { TagPicker } from "~/tag-picker";
+import { Kbd, KbdGroup } from "~/components/ui/kbd";
+import { Tooltip, TooltipTrigger, TooltipContent } from "~/components/ui/tooltip";
 
 async function saveSnippet(snippetText: string, tags: string[], parentId?: string | null) {
   try {
@@ -135,12 +137,20 @@ export function SnippetInput({
           <>
             <div className="flex flex-col gap-2">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save"}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex items-center gap-1">
+                      {isSubmitting ? "Saving..." : "Save"}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <KbdGroup>
+                      <Kbd>⌘</Kbd>/<Kbd>Ctrl</Kbd>
+                      <Kbd>⏎</Kbd>
+                    </KbdGroup>
+                  </TooltipContent>
+                </Tooltip>
               </Button>
-
-              <span className="self-center text-xs text-muted-foreground mr-2 hidden sm:inline">
-                ⌘⏎ / Ctrl⏎ to save
-              </span>
             </div>
 
             <div className="flex gap-2">
