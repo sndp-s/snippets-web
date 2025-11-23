@@ -4,43 +4,31 @@ import { SnippetsList } from "~/snippets-list/snippets-list";
 import type { SnippetType } from "~/lib/types";
 import { SnippetInput } from "~/snippet-input/snippet-input";
 import { HOST, SNIPPETS_ENDPOINT, CHILDREN_SNIPPETS_ENDPOINT } from "~/lib/consts";
+import { useSnippetsQuery } from "~/lib/queries";
+import { useSnippetFiltersStore } from "~/store/useSnippetFiltersStore";
 
-export default function StashpadClone({ snippets }: { snippets: SnippetType[] | null }) {
-  // const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
+export default function StashpadClone() {
   const [childrenSnippets, setChildrenSnippets] = React.useState<SnippetType[] | null>(null);
   const [selectedSnippetId, setSelectedSnippetId] = React.useState<SnippetType["id"] | null>(null);
 
+  const { searchQuery, selectedTags, tagMode } = useSnippetFiltersStore();
+  const { data: snippets, isLoading } = useSnippetsQuery(searchQuery, selectedTags, tagMode);
 
-  // const fetchSnippets = () => {
-  //   fetch(`${HOST}${SNIPPETS_ENDPOINT}`)
+  // const fetchChildrenSnippets = (parentSnippetId: string) => {
+  //   fetch(`${HOST}${CHILDREN_SNIPPETS_ENDPOINT(parentSnippetId)}`)
   //     .then((res) => res.json())
-  //     .then((data) => setSnippets(data))
+  //     .then((data) => setChildrenSnippets(data))
   //     .catch((err) => {
-  //       console.error("Something went wrong trying to fetch all snippets!");
+  //       console.error("Something went wrong trying to fetch children snippets!");
   //       console.error(err);
-  //       toast.error("Failed to fetch snippets");
+  //       toast.error("Failed to fetch children snippets");
   //     });
   // };
 
-  const fetchChildrenSnippets = (parentSnippetId: string) => {
-    fetch(`${HOST}${CHILDREN_SNIPPETS_ENDPOINT(parentSnippetId)}`)
-      .then((res) => res.json())
-      .then((data) => setChildrenSnippets(data))
-      .catch((err) => {
-        console.error("Something went wrong trying to fetch children snippets!");
-        console.error(err);
-        toast.error("Failed to fetch children snippets");
-      });
-  };
-
   // React.useEffect(() => {
-  //   fetchSnippets();
-  // }, []);
-
-  React.useEffect(() => {
-    if (!selectedSnippetId) return;
-    fetchChildrenSnippets(selectedSnippetId);
-  }, [selectedSnippetId]);
+  //   if (!selectedSnippetId) return;
+  //   fetchChildrenSnippets(selectedSnippetId);
+  // }, [selectedSnippetId]);
 
   return (
     <main className="flex flex-1 overflow-hidden">
@@ -49,7 +37,7 @@ export default function StashpadClone({ snippets }: { snippets: SnippetType[] | 
         {/* scrollable list */}
         <div className="flex-1 overflow-y-auto p-3">
           <SnippetsList
-            snippets={snippets}
+            snippets={snippets ?? []}
             onSnippetSelect={(id: string) => setSelectedSnippetId(id)}
             selectedSnippetId={selectedSnippetId}
           />
@@ -68,14 +56,14 @@ export default function StashpadClone({ snippets }: { snippets: SnippetType[] | 
             key={selectedSnippetId}
             className="flex-1 overflow-y-auto p-3 gap-2 flex flex-col"
           >
-            <SnippetsList snippets={childrenSnippets} onSnippetSelect={() => { }} />
+            {/* <SnippetsList snippets={childrenSnippets} onSnippetSelect={() => { }} />
             <SnippetInput
               parentId={selectedSnippetId}
               onSnippetSaved={() => {
                 if (!selectedSnippetId) return;
                 fetchChildrenSnippets(selectedSnippetId);
               }}
-            />
+            /> */}
           </div>
         ) : (
           <div className="text-center text-sm text-muted-foreground/70 p-6 italic">

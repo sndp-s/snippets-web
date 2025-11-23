@@ -3,34 +3,14 @@ import { Button } from "~/components/ui/button"
 import { Tooltip, TooltipTrigger, TooltipContent } from "~/components/ui/tooltip";
 import StashpadClone from "~/stashpadclone/stashpadclone";
 import { PlusIcon } from "lucide-react";
-import type { SnippetType } from "~/lib/types";
-import { HOST, SNIPPETS_ENDPOINT } from "~/lib/consts";
-import { toast } from "sonner";
 import { SnippetSearchControls } from "~/snippet-search-controls";
 import { Kbd, KbdGroup } from "~/components/ui/kbd";
-import { useSnippetStore } from "~/store/useSnippetStore";
 import { useSnippetModalStore } from "~/store/useSnippetModalStore";
 
 export default function SnippetsApp() {
-  // const [snippets, setSnippets] = React.useState<SnippetType[] | null>(null);
   const { setOpen: setSnippetDialogOpen } = useSnippetModalStore();
-  const { searchQuery, selectedTags, tagMode } = useSnippetStore();
-
-  // const fetchSnippets = (searchQuery: string, tags: string[], tagMode: "any" | "all") => {
-  //   fetch(`${HOST}${SNIPPETS_ENDPOINT}?q=${searchQuery}&tags=${tags.join(",")}&tag_mode=${tagMode}`)
-  //     .then((res) => res.json())
-  //     .then((data) => setSnippets(data))
-  //     .catch((err) => {
-  //       console.error("Something went wrong trying to fetch all snippets!");
-  //       console.error(err);
-  //       toast.error("Failed to fetch snippets");
-  //     });
-  // };
 
   React.useEffect(() => {
-    // // fetch existing snippets
-    // fetchSnippets(searchQuery, selectedTags, tagMode);
-
     // add global event handler for shortcuts
     const handler = (e: KeyboardEvent) => {
       // ⌘⇧S (Mac) or Ctrl+Shift+S (Windows/Linux) to open snippet input
@@ -44,10 +24,6 @@ export default function SnippetsApp() {
 
     return () => window.removeEventListener("keydown", handler);
   }, []);
-
-  // React.useEffect(() => {
-  //   fetchSnippets(searchQuery, selectedTags, tagMode);
-  // }, [searchQuery, selectedTags, tagMode]);
 
   return (
     <div className="h-screen max-w-[1600px] mx-auto flex flex-col">
@@ -71,7 +47,7 @@ export default function SnippetsApp() {
           </Tooltip>
         </Button>
       </header >
-      {/* <StashpadClone snippets={snippets} /> */}
+      <StashpadClone />
     </div >
   );
 }
