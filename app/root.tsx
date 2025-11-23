@@ -7,6 +7,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+import UIRoot from "./components/ui/UIRoot";
 import type { Route } from "./+types/root";
 import "./app.css";
 
@@ -33,7 +34,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <UIRoot>
+          {children}
+        </UIRoot>
         <ScrollRestoration />
         <Scripts />
       </body>
