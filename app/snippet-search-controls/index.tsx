@@ -1,6 +1,6 @@
 import React from "react";
 import { Input } from "~/components/ui/input";
-import { useSnippetStore } from "~/store/useSnippetStore";
+import { useSnippetFiltersStore } from "~/store/useSnippetFiltersStore";
 import { TagPicker } from "~/tag-picker";
 import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
 
@@ -12,7 +12,7 @@ export function SnippetSearchControls() {
     setSelectedTags,
     tagMode,
     setTagMode,
-  } = useSnippetStore();
+  } = useSnippetFiltersStore();
 
   return (
     <div className="flex items-center gap-2">
