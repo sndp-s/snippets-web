@@ -11,7 +11,6 @@ export type SnippetModalStore = {
 
   openCreate: () => void;
   openEdit: (snippet: SnippetType) => void;
-  setOpen: (open: boolean) => void;
   close: () => void;
 };
 
@@ -20,10 +19,6 @@ export const useSnippetModalStore = create<SnippetModalStore>((set) => ({
   mode: { type: "create" },
 
   openCreate: () => set({ isOpen: true, mode: { type: "create" } }),
-
   openEdit: (snippet) => set({ isOpen: true, mode: { type: "edit", snippet } }),
-
-  setOpen: (open) => set({ isOpen: open }),
-
   close: () => set({ isOpen: false, mode: { type: "create" } }),
 }));

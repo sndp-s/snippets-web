@@ -8,7 +8,7 @@ import { Kbd, KbdGroup } from "~/components/ui/kbd";
 import { useSnippetModalStore } from "~/store/useSnippetModalStore";
 
 export default function SnippetsApp() {
-  const { setOpen: setSnippetDialogOpen } = useSnippetModalStore();
+  const { openCreate } = useSnippetModalStore();
 
   React.useEffect(() => {
     // add global event handler for shortcuts
@@ -17,7 +17,7 @@ export default function SnippetsApp() {
       const mod = e.metaKey || e.ctrlKey;
       if (mod && e.shiftKey && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        setSnippetDialogOpen(true);
+        openCreate();
       }
     };
     window.addEventListener("keydown", handler);
@@ -30,7 +30,7 @@ export default function SnippetsApp() {
       {/* Header */}
       <header className="p-2 border-b border-border bg-muted/30 flex gap-2 justify-between">
         <SnippetSearchControls />
-        <Button variant="outline" size="sm" onClick={() => setSnippetDialogOpen(true)}>
+        <Button variant="outline" size="sm" onClick={() => openCreate()}>
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="flex items-center gap-1">

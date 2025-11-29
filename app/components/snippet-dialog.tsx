@@ -10,19 +10,14 @@ import type { SnippetModalStore } from "~/store/useSnippetModalStore";
 import { useSnippetModalStore } from "~/store/useSnippetModalStore";
 
 export function SnippetDialog() {
-  const { isOpen, setOpen }: SnippetModalStore = useSnippetModalStore();
+  const { isOpen, close }: SnippetModalStore = useSnippetModalStore();
   return (
-    < Dialog open={isOpen} onOpenChange={setOpen} >
+    < Dialog open={isOpen} onOpenChange={(open) => !open && close()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create a new snippet</DialogTitle>
         </DialogHeader>
-        <SnippetInput
-          onSnippetSaved={() => {
-            // fetchSnippets(searchQuery, selectedTags, tagMode);
-            // setOpen(false);
-          }}
-        />
+        <SnippetInput onSnippetSaved={() => close()} />
       </DialogContent>
     </Dialog >
   )
