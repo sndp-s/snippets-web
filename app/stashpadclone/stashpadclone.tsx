@@ -1,14 +1,14 @@
 import React from "react";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import { SnippetsList } from "~/snippets-list/snippets-list";
 import type { SnippetType } from "~/lib/types";
-import { SnippetInput } from "~/snippet-input/snippet-input";
-import { HOST, SNIPPETS_ENDPOINT, CHILDREN_SNIPPETS_ENDPOINT } from "~/lib/consts";
+// import { SnippetInput } from "~/snippet-input/snippet-input";
+// import { HOST, SNIPPETS_ENDPOINT, CHILDREN_SNIPPETS_ENDPOINT } from "~/lib/consts";
 import { useSnippetsQuery } from "~/lib/queries";
 import { useSnippetFiltersStore } from "~/store/useSnippetFiltersStore";
 
 export default function StashpadClone() {
-  const [childrenSnippets, setChildrenSnippets] = React.useState<SnippetType[] | null>(null);
+  // const [childrenSnippets, setChildrenSnippets] = React.useState<SnippetType[] | null>(null);
   const [selectedSnippetId, setSelectedSnippetId] = React.useState<SnippetType["id"] | null>(null);
 
   const { searchQuery, selectedTags, tagMode } = useSnippetFiltersStore();
@@ -49,6 +49,7 @@ export default function StashpadClone() {
         </div> */}
       </section>
 
+      {/* TODO: refactor children snippets section/feature */}
       {/* Right: children snippets section */}
       <section className="flex-1 bg-muted/10 p-4 text-sm text-muted-foreground">
         {selectedSnippetId ? (
@@ -71,8 +72,6 @@ export default function StashpadClone() {
           </div>
         )}
       </section>
-
     </main>
   );
-
 }
