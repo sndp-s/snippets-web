@@ -129,15 +129,14 @@ export function SnippetsList({
 
               <div className="flex items-baseline _bg-red-500">
                 {/* Tags */}
-                {snippet.tags.length > 0 && (
-                  <div className="flex-1 flex gap-1 flex-wrap pb-2">
-                    {snippet.tags.map((t) => (
-                      <Badge key={t.name} className="px-1 py-0.5 text-xs leading-none">
-                        {t.name}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
+                <div className="flex-1 flex gap-1 flex-wrap pb-2">
+                  {snippet.tags.map((t) => (
+                    <Badge key={t.name} className="px-1 py-0.5 text-xs leading-none">
+                      {t.name}
+                    </Badge>
+                  ))}
+                </div>
+
 
                 {/* edit button */}
                 <Button variant="ghost" size="icon" className="p-0" onClick={() => onEdit(snippet)}>
