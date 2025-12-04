@@ -43,3 +43,22 @@ export async function createSnippetFn({
   if (!res.ok) throw new Error("Failed to save snippet");
   return res.json();
 }
+
+export async function updateSnippetFn({
+  id,
+  text,
+  tags,
+}: {
+  id: string;
+  text: string;
+  tags: string[];
+}) {
+  const res = await fetch(`${HOST}${SNIPPETS_ENDPOINT}${id}/`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, tags }),
+  });
+
+  if (!res.ok) throw new Error("Failed to update snippet");
+  return res.json();
+}

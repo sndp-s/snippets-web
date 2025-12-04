@@ -4,6 +4,7 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { Badge } from "~/components/ui/badge";
 import { EditIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { useSnippetModalStore } from "~/store/useSnippetModalStore";
 
 export function SnippetsList({
   snippets,
@@ -15,6 +16,7 @@ export function SnippetsList({
   selectedSnippetId?: string | null;
 }) {
   const listRef = React.useRef<HTMLUListElement>(null);
+  const { openEdit } = useSnippetModalStore();
 
   // -----------------------------
   // Keyboard navigation
@@ -52,13 +54,6 @@ export function SnippetsList({
       const el = listRef.current?.children[nextIndex] as HTMLElement | null;
       el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
-  };
-
-  // -----------------------------
-  // Edit snippet
-  // -----------------------------
-  const onEdit = (snippet: SnippetType) => {
-    // send the changes to the server.
   };
 
   // -----------------------------
@@ -139,7 +134,7 @@ export function SnippetsList({
 
 
                 {/* edit button */}
-                <Button variant="ghost" size="icon" className="p-0" onClick={() => onEdit(snippet)}>
+                <Button variant="ghost" size="icon" className="p-0" onClick={() => { openEdit(snippet) }}>
                   <EditIcon size="14" />
                 </Button>
               </div>

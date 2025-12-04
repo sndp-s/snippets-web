@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchSnippetsFn, createSnippetFn } from "~/lib/api";
+import { fetchSnippetsFn, createSnippetFn, updateSnippetFn } from "~/lib/api";
 import { toast } from "sonner";
 
 export function useSnippetsQuery(
@@ -26,6 +26,21 @@ export function useCreateSnippet() {
     },
     onError: () => {
       toast.error("Failed to save snippet");
+    },
+  });
+}
+
+export function useUpdateSnippet() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateSnippetFn,
+    onSuccess: () => {
+      toast.success("Snippet updated!");
+      qc.invalidateQueries({ queryKey: ["snippets"] });
+    },
+    onError: () => {
+      toast.error("Failed to update snippet");
     },
   });
 }

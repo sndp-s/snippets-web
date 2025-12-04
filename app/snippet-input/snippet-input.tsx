@@ -1,176 +1,86 @@
 import React from "react";
-import { toast } from "sonner";
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
-import { HOST, SNIPPETS_ENDPOINT } from "~/lib/consts";
 import { TagPicker } from "~/tag-picker";
-import { Kbd, KbdGroup } from "~/components/ui/kbd";
-import { Tooltip, TooltipTrigger, TooltipContent } from "~/components/ui/tooltip";
-
-async function saveSnippet(snippetText: string, tags: string[], parentId?: string | null) {
-  try {
-    const response = await fetch(`${HOST}${SNIPPETS_ENDPOINT}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text: snippetText,
-        tags,
-        parent: parentId ?? null,
-      }),
-    });
-
-    if (!response.ok) throw new Error("Failed to save snippet");
-    toast.success("Snippet saved!");
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to save snippet");
-  }
-}
+import { useSnippetForm } from "~/lib/useSnippetForm";
 
 export function SnippetInput({
-  onSnippetSaved,
-  parentId = null,
+  form,
+  onSaved,
 }: {
-  onSnippetSaved: () => void;
-  parentId?: string | null;
+  form: ReturnType<typeof useSnippetForm>;
+  onSaved?: () => void;
 }) {
-  const [snippet, setSnippet] = React.useState("");
-  const [tags, setTags] = React.useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [confirmNoTags, setConfirmNoTags] = React.useState(false);
-  const confirmButtonRef = React.useRef<HTMLButtonElement>(null);
-  const textareaSelectionRef = React.useRef<{ start: number; end: number } | null>(null);
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const {
+    text,
+    setText,
+    tags,
+    setTags,
+    confirmNoTags,
+    setConfirmNoTags,
+    textareaRef,
+    handleSubmit,
+    handleKeyDown,
+    isEdit,
+  } = form;
 
-  React.useEffect(() => {
-    if (confirmNoTags) {
-      confirmButtonRef.current?.focus();
-    }
-  }, [confirmNoTags]);
-
-  const cancelNoTagConfirm = () => {
-    setConfirmNoTags(false);
-
-    // Restore cursor position
-    if (textareaRef.current && textareaSelectionRef.current) {
-      const { start, end } = textareaSelectionRef.current;
-      textareaRef.current.focus();
-      textareaRef.current.setSelectionRange(start, end);
-    }
-  };
-
-  const handleSnippetKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Cmd+Enter (Mac) or Ctrl+Enter (Win/Linux)
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-      e.preventDefault();
-      const text = snippet.trim();
-      if (!text) {
-        toast.warning("Enter snippet text");
-        return;
-      }
-      handleSubmit(e as any);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const submitAndNotify = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!snippet.trim()) {
-      toast.warning("Enter snippet text");
-      return;
+    const didSave = await handleSubmit();
+    if (didSave) {
+      onSaved?.();
     }
+  };
 
-    if (tags.length === 0 && !confirmNoTags) {
-      // Save cursor selection before showing confirm UI
-      if (textareaRef.current) {
-        textareaSelectionRef.current = {
-          start: textareaRef.current.selectionStart,
-          end: textareaRef.current.selectionEnd,
-        };
-      }
-
-      setConfirmNoTags(true);
-      return;
+  const confirmSaveWithoutTags = async () => {
+    const didSave = await handleSubmit();
+    if (didSave) {
+      onSaved?.();
     }
-
-    setIsSubmitting(true);
-    await saveSnippet(snippet, tags, parentId);
-    setIsSubmitting(false);
-
-    setSnippet("");
-    setTags([]);
-    setConfirmNoTags(false);
-    onSnippetSaved();
-    textareaRef.current?.focus();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      {/* TEXT INPUT */}
+    <form onSubmit={submitAndNotify} className="flex flex-col gap-2">
       <Textarea
         ref={textareaRef}
-        value={snippet}
-        onChange={(e) => setSnippet(e.target.value)}
-        onKeyDown={handleSnippetKeyDown}
-        placeholder="Type your snippet..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={isEdit ? "Edit snippet..." : "Type your snippet..."}
         className="text-sm min-h-72"
       />
 
-      <TagPicker value={tags} onChange={setTags} allowNewTags={true} />
+      <TagPicker value={tags} onChange={setTags} />
 
-      {/* ACTION BUTTONS */}
-      <div className="flex justify-between">
-        {confirmNoTags ? (
-          <div className="flex gap-2 ml-auto">
-            <Button
-              ref={confirmButtonRef}
-              variant="destructive"
-              onClick={handleSubmit}
-            >
-              Yes, save without tags
-            </Button>
-            <Button variant="outline" onClick={cancelNoTagConfirm}>
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <>
-            <div className="flex flex-col gap-2">
-              <Button type="submit" disabled={isSubmitting}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="flex items-center gap-1">
-                      {isSubmitting ? "Saving..." : "Save"}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <KbdGroup>
-                      <Kbd>⌘</Kbd>/<Kbd>Ctrl</Kbd>
-                      <Kbd>⏎</Kbd>
-                    </KbdGroup>
-                  </TooltipContent>
-                </Tooltip>
-              </Button>
-            </div>
+      {confirmNoTags ? (
+        <div className="flex gap-2 ml-auto">
+          <Button type="button" onClick={confirmSaveWithoutTags}>
+            {isEdit ? "Update without tags" : "Save without tags"}
+          </Button>
+          <Button variant="outline" onClick={() => setConfirmNoTags(false)}>
+            Cancel
+          </Button>
+        </div>
+      ) : (
+        <div className="flex justify-between">
+          <Button type="submit">{isEdit ? "Update" : "Save"}</Button>
 
-            <div className="flex gap-2">
+          <div className="flex gap-2">
+            {!isEdit && (
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => {
-                  setSnippet("");
-                  textareaRef.current?.focus();
-                }}
+                onClick={() => setText("")}
               >
                 Clear text
               </Button>
-              <Button type="button" variant="outline" onClick={() => setTags([])}>
-                Clear tags
-              </Button>
-            </div>
-          </>
-        )}
-      </div>
+            )}
+            <Button type="button" variant="outline" onClick={() => setTags([])}>
+              Clear tags
+            </Button>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

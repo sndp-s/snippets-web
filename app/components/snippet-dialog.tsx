@@ -8,16 +8,26 @@ import {
 import { SnippetInput } from "~/snippet-input/snippet-input";
 import type { SnippetModalStore } from "~/store/useSnippetModalStore";
 import { useSnippetModalStore } from "~/store/useSnippetModalStore";
+import { useSnippetForm } from "~/lib/useSnippetForm";
 
 export function SnippetDialog() {
-  const { isOpen, close }: SnippetModalStore = useSnippetModalStore();
+  const { isOpen, close, mode }: SnippetModalStore = useSnippetModalStore();
+  const form = useSnippetForm(mode);
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      form.reset();
+      close();
+    }
+  };
+
   return (
-    < Dialog open={isOpen} onOpenChange={(open) => !open && close()}>
+    < Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create a new snippet</DialogTitle>
+          <DialogTitle>{(mode.type === 'create') ? 'Create snippet' : 'Edit snippet'}</DialogTitle>
         </DialogHeader>
-        <SnippetInput onSnippetSaved={() => close()} />
+        <SnippetInput form={form} onSaved={() => close()} />
       </DialogContent>
     </Dialog >
   )
