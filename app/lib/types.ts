@@ -1,3 +1,4 @@
+// TODO decide if types should be located here or in their respective stores
 export interface TagType {
   id: string;
   name: string;

@@ -91,13 +91,6 @@ export function useSnippetForm(mode: SnippetModalMode) {
     return true;
   };
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-      e.preventDefault();
-      await handleSubmit();
-    }
-  };
-
   return {
     // state
     text,
@@ -113,7 +106,6 @@ export function useSnippetForm(mode: SnippetModalMode) {
 
     // actions
     handleSubmit,
-    handleKeyDown,
     reset,
 
     // meta

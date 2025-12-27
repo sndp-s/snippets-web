@@ -21,9 +21,24 @@ export function SnippetDialog() {
     }
   };
 
+  const handleSave = async () => {
+    const didSave = await form.handleSubmit();
+    if (didSave) {
+      close();
+    }
+  };
+
+  const handleKeyDown = async (e: React.KeyboardEvent) => {
+    // Cmd+Enter (Mac) or Ctrl+Enter (Win/Linux) - save from anywhere in dialog
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      await handleSave();
+    }
+  };
+
   return (
     < Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent>
+      <DialogContent onKeyDown={handleKeyDown}>
         <DialogHeader>
           <DialogTitle>{(mode.type === 'create') ? 'Create snippet' : 'Edit snippet'}</DialogTitle>
         </DialogHeader>

@@ -20,7 +20,6 @@ export function SnippetInput({
     setConfirmNoTags,
     textareaRef,
     handleSubmit,
-    handleKeyDown,
     isEdit,
   } = form;
 
@@ -45,7 +44,6 @@ export function SnippetInput({
         ref={textareaRef}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyDown}
         placeholder={isEdit ? "Edit snippet..." : "Type your snippet..."}
         className="text-sm min-h-72"
       />
